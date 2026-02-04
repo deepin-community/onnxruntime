@@ -1,0 +1,6 @@
+libonnxruntime.so.1.21 #PACKAGE# #MINVER#
+* Build-Depends-Package: libonnxruntime-dev
+ OrtGetApiBase@VERS_1.21 1.21.0
+ OrtSessionOptionsAppendExecutionProvider_CPU@VERS_1.21 1.21.0
+ (arch=amd64 arm64 ppc64el s390x)OrtSessionOptionsAppendExecutionProvider_Dnnl@VERS_1.21 1.21.0
+ VERS_1.21@VERS_1.21 1.21.0

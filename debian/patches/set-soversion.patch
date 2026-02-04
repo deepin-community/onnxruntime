@@ -1,0 +1,32 @@
+Description: set SOVERSION for shared library. Upstream has simplified the
+ SONAME without saying anything about the API/ABI stability, see:
+ https://github.com/microsoft/onnxruntime/pull/21339
+ Until it's clarified let's reuse the previous behavior to avoid unexpected
+ breakage. This will require transition for every release, but it's safer.
+Author: Shengqi Chen <harry-chen@outlook.com>
+Forwarded: not-needed
+
+--- a/cmake/onnxruntime.cmake
++++ b/cmake/onnxruntime.cmake
+@@ -63,9 +63,11 @@
+ endforeach()
+ 
+ if(NOT CMAKE_SYSTEM_NAME MATCHES "AIX")
++set(ORT_SOVERSION_NUMBER_FILE "${CMAKE_CURRENT_BINARY_DIR}/VERSION_NUMBER")
++file(WRITE "${ORT_SOVERSION_NUMBER_FILE}" "${VERSION_MAJOR_PART}.${VERSION_MINOR_PART}")
+ add_custom_command(OUTPUT ${SYMBOL_FILE} ${CMAKE_CURRENT_BINARY_DIR}/generated_source.c
+   COMMAND ${Python_EXECUTABLE} "${REPO_ROOT}/tools/ci_build/gen_def.py"
+-    --version_file "${ONNXRUNTIME_ROOT}/../VERSION_NUMBER" --src_root "${ONNXRUNTIME_ROOT}"
++    --version_file "${ORT_SOVERSION_NUMBER_FILE}" --src_root "${ONNXRUNTIME_ROOT}"
+     --config ${ONNXRUNTIME_PROVIDER_NAMES} --style=${OUTPUT_STYLE} --output ${SYMBOL_FILE}
+     --output_source ${CMAKE_CURRENT_BINARY_DIR}/generated_source.c
+   DEPENDS ${SYMBOL_FILES}
+@@ -272,7 +274,7 @@
+       PUBLIC_HEADER "${ONNXRUNTIME_PUBLIC_HEADERS}"
+       LINK_DEPENDS ${SYMBOL_FILE}
+       VERSION ${ORT_VERSION}
+-      SOVERSION 1
++      SOVERSION "${VERSION_MAJOR_PART}.${VERSION_MINOR_PART}"
+       FOLDER "ONNXRuntime")
+   endif()
+ else()

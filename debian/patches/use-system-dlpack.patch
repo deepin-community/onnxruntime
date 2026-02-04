@@ -1,0 +1,16 @@
+Description: Use dlpack from system
+Author: Shengqi Chen <harry@debian.org>
+Forwarded: not-needed
+
+--- a/cmake/external/onnxruntime_external_deps.cmake
++++ b/cmake/external/onnxruntime_external_deps.cmake
+@@ -551,7 +551,8 @@
+     EXCLUDE_FROM_ALL
+     FIND_PACKAGE_ARGS NAMES dlpack
+   )
+-  onnxruntime_fetchcontent_makeavailable(dlpack)
++  #onnxruntime_fetchcontent_makeavailable(dlpack)
++  find_package(dlpack REQUIRED)
+ endif()
+ 
+ if(onnxruntime_ENABLE_TRAINING OR (onnxruntime_ENABLE_TRAINING_APIS AND onnxruntime_BUILD_UNIT_TESTS))
