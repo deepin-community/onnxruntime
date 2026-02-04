@@ -1,15 +1,149 @@
-Source: template-repository
-Section: unknown
+Source: onnxruntime
+Maintainer: Debian Deep Learning Team <debian-ai@lists.debian.org>
+Uploaders: Mo Zhou <lumin@debian.org>,
+           Dylan Aïssi <daissi@debian.org>,
+           Shengqi Chen <harry@debian.org>
+Section: science
 Priority: optional
-Maintainer: Tsic404 <liuheng@deepin.org>
-Build-Depends: debhelper (>= 11)
-Standards-Version: 4.1.3
-Homepage: https://github.com/deepin-community/template-repository
-#Vcs-Browser: https://salsa.debian.org/debian/deepin-community-template-repository
-#Vcs-Git: https://salsa.debian.org/debian/deepin-community-template-repository.git
+Build-Depends: debhelper-compat (= 13),
+               dh-exec,
+               dh-sequence-python3,
+               dh-sequence-numpy3,
+               cmake,
+               libboost-dev,
+#               libbenchmark-dev, # not enabled in rules
+               libcpuinfo-dev (>= 0.0~git20240830.fa1c679),
+               libdlpack-dev,
+               libeigen3-dev (>= 3.4.0),
+               libflatbuffers-dev,
+#               libgmock-dev <!nocheck>,
+#               libgtest-dev <!nocheck>,
+               libhowardhinnant-date-dev,
+               libmsgsl-dev,
+               libonnx-dev,
+#               libonnx-testdata <!nocheck>,
+               libpng-dev,
+               libprotobuf-dev,
+               libpthreadpool-dev,
+               libsafeint-dev,
+               libre2-dev,
+               libdnnl-dev [amd64 arm64 ppc64el s390x],
+               libxnnpack-dev (>= 0.0~git20241108.4ea82e5~) [amd64 arm64 armhf i386 riscv64 x32],
+               ninja-build,
+               nlohmann-json3-dev,
+               protobuf-compiler,
+               pkgconf,
+               python3,
+               python3-dev,
+               python3-numpy,
+               python3-onnx,
+               python3-packaging,
+               python3-protobuf,
+               python3-pybind11,
+               python3-setuptools,
+               python3-wheel,
+               sse2-support [i386],
+               zlib1g-dev
+Standards-Version: 4.7.2
+Vcs-Browser: https://salsa.debian.org/deeplearning-team/onnxruntime
+Vcs-Git: https://salsa.debian.org/deeplearning-team/onnxruntime.git
+Homepage: https://github.com/microsoft/onnxruntime
+Rules-Requires-Root: no
 
-Package: template-repository
+Package: libonnxruntime1.21
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Multi-Arch: same
+Section: libs
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         libonnxruntime-providers (= ${binary:Version}),
+         sse2-support [i386]
+Conflicts: libonnxruntime1.19.2, libonnxruntime1.20.1
+Replaces: libonnxruntime1.19.2, libonnxruntime1.20.1,
+          libonnxruntime-dev (<< 1.20.1+dfsg-1~exp2~)
+Breaks: libonnxruntime-dev (<< 1.20.1+dfsg-1~exp2~)
+Description: cross-platform inference and training ML accelerator (shared lib)
+ ONNX Runtime is a performance-focused complete scoring engine for Open Neural
+ Network Exchange (ONNX) models, with an open extensible architecture to
+ continually address the latest developments in AI and Deep Learning. ONNX
+ Runtime stays up to date with the ONNX standard with complete implementation of
+ all ONNX operators, and supports all ONNX releases (1.2+) with both future and
+ backwards compatibility. Please refer to this page for ONNX opset compatibility
+ details.
+ .
+ This package provides the shared library.
+
+Package: libonnxruntime-providers
+Architecture: any
+Multi-Arch: same
+Section: libs
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         sse2-support [i386]
+Breaks: libonnxruntime1.21 (<< 1.21.0+dfsg-2~)
+Replaces: libonnxruntime1.21 (<< 1.21.0+dfsg-2~)
+Description: cross-platform inference and training ML accelerator (providers)
+ ONNX Runtime is a performance-focused complete scoring engine for Open Neural
+ Network Exchange (ONNX) models, with an open extensible architecture to
+ continually address the latest developments in AI and Deep Learning. ONNX
+ Runtime stays up to date with the ONNX standard with complete implementation of
+ all ONNX operators, and supports all ONNX releases (1.2+) with both future and
+ backwards compatibility. Please refer to this page for ONNX opset compatibility
+ details.
+ .
+ This package provides the providers.
+
+Package: libonnxruntime-dev
+Architecture: any
+Multi-Arch: same
+Section: libdevel
+Depends: libonnxruntime1.21 (= ${binary:Version}),
+         ${misc:Depends}
+Breaks: libonnxruntime1.13.1 (<< 1.16.3+dfsg-1~)
+Replaces: libonnxruntime1.13.1 (<< 1.16.3+dfsg-1~)
+Description: cross-platform inference and training ML accelerator (dev files)
+ ONNX Runtime is a performance-focused complete scoring engine for Open Neural
+ Network Exchange (ONNX) models, with an open extensible architecture to
+ continually address the latest developments in AI and Deep Learning. ONNX
+ Runtime stays up to date with the ONNX standard with complete implementation of
+ all ONNX operators, and supports all ONNX releases (1.2+) with both future and
+ backwards compatibility. Please refer to this page for ONNX opset compatibility
+ details.
+ .
+ This package provides the development files for libonnxruntime.
+
+Package: onnxruntime-tools
+Architecture: all
+Multi-Arch: foreign
+Depends: ${misc:Depends},
+         ${python3:Depends},
+         ${shlibs:Depends}
+Description: cross-platform inference and training ML accelerator (tools)
+ ONNX Runtime is a performance-focused complete scoring engine for Open Neural
+ Network Exchange (ONNX) models, with an open extensible architecture to
+ continually address the latest developments in AI and Deep Learning. ONNX
+ Runtime stays up to date with the ONNX standard with complete implementation of
+ all ONNX operators, and supports all ONNX releases (1.2+) with both future and
+ backwards compatibility. Please refer to this page for ONNX opset compatibility
+ details.
+ .
+ This package provides the onnxruntime tools.
+
+Package: python3-onnxruntime
+Architecture: any
+Section: python
+Depends: libonnxruntime1.21 (= ${binary:Version}),
+         ${misc:Depends},
+         ${python3:Depends},
+         ${shlibs:Depends},
+         sse2-support [i386]
+Description: cross-platform inference and training ML accelerator (Python bindings)
+ ONNX Runtime is a performance-focused complete scoring engine for Open Neural
+ Network Exchange (ONNX) models, with an open extensible architecture to
+ continually address the latest developments in AI and Deep Learning. ONNX
+ Runtime stays up to date with the ONNX standard with complete implementation of
+ all ONNX operators, and supports all ONNX releases (1.2+) with both future and
+ backwards compatibility. Please refer to this page for ONNX opset compatibility
+ details.
+ .
+ This package provides the onnxruntime Python bindings.

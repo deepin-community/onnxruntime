@@ -1,4 +1,99 @@
 #!/usr/bin/make -f
 
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all optimize=-lto
+
+export DEB_CFLAGS_MAINT_STRIP=-O2
+export DEB_CXXFLAGS_MAINT_STRIP=-O2
+export DEB_CFLAGS_MAINT_APPEND+=-O3
+export DEB_CXXFLAGS_MAINT_APPEND+=-O3
+
+
+ifeq ($(DEB_HOST_ARCH),i386)
+  export DEB_CFLAGS_MAINT_APPEND   = -msse2
+  export DEB_CXXFLAGS_MAINT_APPEND = -msse2
+endif
+
+# https://github.com/microsoft/onnxruntime/issues/25681
+export DEB_CFLAGS_MAINT_APPEND   += -Wno-error=uninitialized
+export DEB_CXXFLAGS_MAINT_APPEND += -Wno-error=uninitialized
+
+FULLVERSION=1.21.0
+SOVERSION=1.21
+
+# xnnpack is only available on several architectures.
+# on riscv64 the provider is not usable: https://ci.debian.net/packages/o/onnxruntime/testing/riscv64/57967709/
+ifneq (,$(filter $(DEB_HOST_ARCH), amd64 arm64 armhf i386 x32))
+USE_XNNPACK=ON
+else
+USE_XNNPACK=OFF
+endif
+
+# dnnl is only available on several architectures.
+# riscv64 is temporarily disabled until onednn has openmp support on it,
+# because onnxruntime always sets DNNL_OPENMP when onnxruntime_USE_DNNL is set.
+ifneq (,$(filter $(DEB_HOST_ARCH), amd64 arm64 ppc64el s390x))
+USE_DNNL=ON
+else
+USE_DNNL=OFF
+endif
+
+PYVERS=$(shell python3 -c 'import sysconfig;print (sysconfig.get_python_version())')
+
+PATH_LIB=usr/lib/${DEB_HOST_MULTIARCH}
+PATH_LIB_PYTHON=usr/lib/python3/dist-packages/onnxruntime/capi
+
 %:
-	dh $@
+	dh $@ --buildsystem=cmake+ninja --sourcedirectory=cmake --builddirectory=.
+
+override_dh_auto_configure:
+	dh_auto_configure -- \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_INCLUDEDIR=include \
+		-Deigen_SOURCE_PATH=/usr/include/eigen3 \
+		-Donnxruntime_BUILD_BENCHMARKS=OFF \
+		-Donnxruntime_BUILD_SHARED_LIB=ON \
+		-Donnxruntime_BUILD_UNIT_TESTS=OFF \
+		-Donnxruntime_DISABLE_ABSEIL=ON \
+		-Donnxruntime_ENABLE_CPUINFO=ON \
+		-Donnxruntime_ENABLE_DLPACK=ON \
+		-Donnxruntime_ENABLE_PYTHON=ON \
+		-Donnxruntime_ONNX_PROTO_DATA_DIR=/usr/lib/python3/dist-packages \
+		-Donnxruntime_ONNX_TEST_DATA_DIR=/usr/share/libonnx-testdata/data \
+		-Donnxruntime_USE_FULL_PROTOBUF=ON \
+		-Donnxruntime_USE_PREINSTALLED_EIGEN=ON \
+		-Donnxruntime_USE_XNNPACK=$(USE_XNNPACK) \
+		-Donnxruntime_USE_DNNL=$(USE_DNNL) \
+		-DPYTHON_VERSION=${PYVERS} \
+		$(NULL)
+
+override_dh_auto_build:
+	dh_auto_build
+	# Build Python bindings
+	dh_auto_build --buildsystem=pybuild --sourcedirectory=.
+
+override_dh_auto_install:
+	dh_auto_install
+	# Install Python bindings
+	dh_auto_install --buildsystem=pybuild --sourcedirectory=.
+
+execute_after_dh_link:
+	# To avoid having large duplicated libraries
+	dh_link -ppython3-onnxruntime \
+	  ${PATH_LIB}/libonnxruntime.so.$(SOVERSION) ${PATH_LIB_PYTHON}/libonnxruntime.so.$(SOVERSION) \
+	  ${PATH_LIB}/libonnxruntime.so.$(FULLVERSION) ${PATH_LIB_PYTHON}/libonnxruntime.so.$(FULLVERSION)
+
+override_dh_python3:
+	dh_python3
+	# remove loadable plugins already installed in libonnxruntime-providers
+	-find debian/python3-onnxruntime -type f -name 'libonnxruntime_providers_*.so*' -delete
+
+override_dh_auto_test:
+	# Do NOT run tests, they depend on *.onnx dataset with unclear license
+	# See https://github.com/microsoft/onnxruntime/issues/8963
+
+override_dh_auto_clean:
+
+override_dh_makeshlibs:
+	dh_makeshlibs \
+		--exclude=/usr/lib/$(DEB_HOST_MULTIARCH)/libonnxruntime_providers_ \
+		-- -c4

@@ -1,0 +1,7 @@
+# loadable plugins
+lacks-ldconfig-trigger usr/lib/*/libonnxruntime_providers_*.so
+no-symbols-control-file usr/lib/*/libonnxruntime_providers_*.so
+package-name-doesnt-match-sonames libonnxruntime-providers-*
+shared-library-lacks-prerequisites [usr/lib/*/libonnxruntime_providers_*.so]
+shared-library-lacks-version usr/lib/*/libonnxruntime_providers_*.so libonnxruntime_providers_*.so
+sharedobject-in-library-directory-missing-soname [usr/lib/*/libonnxruntime_providers_*.so]

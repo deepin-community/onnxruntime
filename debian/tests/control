@@ -1,0 +1,22 @@
+Tests: build
+Depends: build-essential, pkgconf, libonnxruntime-dev
+Restrictions: superficial
+
+Test-Command: python3 debian/tests/inference.py
+Depends: @, python3-torch, python3-numpy, python3-onnx,
+Restrictions: allow-stderr
+Architecture: amd64 arm64 ppc64el s390x riscv64
+Features: test-name=test-inference-simple
+
+Test-Command: python3 debian/tests/providers.py
+Depends: @, python3-torch, python3-numpy, python3-onnx,
+Restrictions: allow-stderr
+Architecture: amd64 arm64 ppc64el s390x riscv64
+Features: test-name=test-execution-providers
+
+# this needs python3-onnxscript, which is net yet packaged.
+#Test-Command: python3 transformer.py
+#Depends: @, python3-torch, python3-numpy,
+#Restrictions: allow-stderr
+#Architecture: amd64 arm64 ppc64el s390x riscv64
+#Features: test-name=test-inference-transformers

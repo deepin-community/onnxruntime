@@ -1,0 +1,26 @@
+Description: Use system date and mp11 libs (libhowardhinnant-date-dev and libboost-dev)
+Forwarded: not-needed
+Origin: https://src.fedoraproject.org/rpms/onnxruntime/blob/f40/f/system-date-and-mp11.patch
+
+--- a/cmake/external/onnxruntime_external_deps.cmake
++++ b/cmake/external/onnxruntime_external_deps.cmake
+@@ -247,7 +247,8 @@
+   EXCLUDE_FROM_ALL
+   FIND_PACKAGE_ARGS 3...<4 NAMES date
+ )
+-onnxruntime_fetchcontent_makeavailable(date)
++#onnxruntime_fetchcontent_makeavailable(date)
++find_package(date REQUIRED)
+ 
+ if(NOT TARGET Boost::mp11)
+   if(onnxruntime_USE_VCPKG)
+@@ -261,7 +262,8 @@
+      EXCLUDE_FROM_ALL
+      FIND_PACKAGE_ARGS NAMES Boost
+     )
+-    onnxruntime_fetchcontent_makeavailable(mp11)    
++    #onnxruntime_fetchcontent_makeavailable(mp11)
++    find_package(Boost REQUIRED)
+     if(NOT TARGET Boost::mp11)
+       add_library(Boost::mp11 ALIAS Boost::headers)
+     endif()

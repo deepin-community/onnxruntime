@@ -1,0 +1,9 @@
+Version: 5
+
+Template: Github
+Owner: microsoft
+Project: onnxruntime
+Dversionmangle: s/\+dfsg//g
+Repacksuffix: +dfsg
+Matching-Pattern: https://api.github.com/repos/[^/]+/[^/]+/git/refs/tags/(?:[^/]+\-)?(?:[-_]?[Vv](\d[\-+\.:\~\da-zA-Z]*))
+# We need a custom Matching-Pattern because of some weird tags
