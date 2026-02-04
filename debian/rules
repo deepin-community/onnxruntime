@@ -16,6 +16,7 @@ endif
 # https://github.com/microsoft/onnxruntime/issues/25681
 export DEB_CFLAGS_MAINT_APPEND   += -Wno-error=uninitialized
 export DEB_CXXFLAGS_MAINT_APPEND += -Wno-error=uninitialized
+export DEB_CXXFLAGS_MAINT_APPEND += -Wno-error=array-bounds
 
 FULLVERSION=1.21.0
 SOVERSION=1.21
