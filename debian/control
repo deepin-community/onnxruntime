@@ -10,6 +10,7 @@ Build-Depends: debhelper-compat (= 13),
                dh-sequence-python3,
                dh-sequence-numpy3,
                cmake,
+               libabsl-dev,
                libboost-dev,
 #               libbenchmark-dev, # not enabled in rules
                libcpuinfo-dev (>= 0.0~git20240830.fa1c679),

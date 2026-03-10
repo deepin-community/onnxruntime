@@ -1,3 +1,9 @@
+onnxruntime (1.21.0+dfsg-4deepin1) unstable; urgency=medium
+
+  * fix: Add Build-Depends libabsl-dev
+
+ -- zhaochengyi <zhaochengyi@uniontech.com>  Tue, 10 Mar 2026 11:42:36 +0800
+
 onnxruntime (1.21.0+dfsg-3deepin1) unstable; urgency=medium
 
   * Fix compilation errors of array-bounds
